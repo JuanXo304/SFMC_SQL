@@ -1,0 +1,27 @@
+SELECT
+s.SubscriberKey,
+MAX(s.eventdate) AS eventdate,
+COALESCE(j.EmailName,ja.activityname) AS EmailName,
+s.jobid,
+jy.JourneyName,
+COUNT(s.eventdate) as Count
+FROM ENT._Sent s
+
+LEFT JOIN ENT._Job j
+ON s.jobid = j.jobid
+
+join [_JourneyActivity] ja 
+on s.TriggererSendDefinitionObjectID = ja.JourneyActivityObjectID
+
+join [_Journey] jy
+on ja.VersionID = jy.VersionID
+
+WHERE s.eventdate >= DATEADD(d,-2,GETDATE())
+AND s.subscriberKEy IS NOT NULL
+AND s.jobid is not null
+
+GROUP BY 
+s.SubscriberKey,
+COALESCE(j.EmailName,ja.activityname),
+s.jobid,
+jy.JourneyName
